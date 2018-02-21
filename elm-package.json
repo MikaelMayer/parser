@@ -1,7 +1,7 @@
 {
-    "version": "2.0.4",
+    "version": "2.0.5",
     "summary": "a parsing library, focused on simplicity and great error messages",
-    "repository": "hhttps://github.com/MikaelMayer/parser.git",
+    "repository": "https://github.com/MikaelMayer/parser.git",
     "license": "BSD-3-Clause",
     "source-directories": [
         "src"
