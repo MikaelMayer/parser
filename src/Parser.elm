@@ -4,7 +4,7 @@ module Parser exposing
   , int, float, symbol, keyword, end
   , Count(..), zeroOrMore, oneOrMore, keep, ignore, repeat
   , succeed, fail, map, oneOf, (|=), (|.), map2, lazy, andThen
-  , delayedCommit, delayedCommitMap
+  , delayedCommit, delayedCommitMap, delayedCommitAndThen
   , source, sourceMap, ignoreUntil
   , Error, Problem(..), Context, inContext
   )
@@ -24,7 +24,7 @@ module Parser exposing
 @docs succeed, fail, map, oneOf, (|=), (|.), map2, lazy, andThen
 
 # Delayed Commits
-@docs delayedCommit, delayedCommitMap
+@docs delayedCommit, delayedCommitMap, delayedCommitAndThen
 
 # Efficiency Tricks
 @docs source, sourceMap, ignoreUntil
@@ -547,7 +547,25 @@ delayedCommitMap func (Parser parseA) (Parser parseB) =
             else
               Bad x state3
 
+{-| Like [`delayedCommitMap`](#delayedCommitMap), but lets you make the second parser depend on the result of the first.
+-}
+delayedCommitAndThen: (a -> b -> value) -> Parser a -> (a -> Parser b) -> Parser value
+delayedCommitAndThen func parseA aToParseB =
+  Parser <| \state1 ->
+    case parseA state1 of
+      Bad x _ ->
+        Bad x state1
 
+      Good a state2 ->
+        case aToParseB a state2 of
+          Good b state3 ->
+            Good (func a b) state3
+
+          Bad x state3 ->
+            if state2.row == state3.row && state2.col == state3.col then
+              Bad x state1
+            else
+              Bad x state3
 
 -- SYMBOLS and KEYWORDS
 
