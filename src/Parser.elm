@@ -550,14 +550,15 @@ delayedCommitMap func (Parser parseA) (Parser parseB) =
 {-| Like [`delayedCommitMap`](#delayedCommitMap), but lets you make the second parser depend on the result of the first.
 -}
 delayedCommitAndThen: (a -> b -> value) -> Parser a -> (a -> Parser b) -> Parser value
-delayedCommitAndThen func parseA aToParseB =
+delayedCommitAndThen func (Parser parseA) aToParserB =
   Parser <| \state1 ->
     case parseA state1 of
       Bad x _ ->
         Bad x state1
 
       Good a state2 ->
-        case aToParseB a state2 of
+        let (Parser parseB) = aToParserB a in
+        case parseB state2 of
           Good b state3 ->
             Good (func a b) state3
 
